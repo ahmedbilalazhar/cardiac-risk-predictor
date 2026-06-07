@@ -1,138 +1,140 @@
-# Heart Disease Risk Assessment
+# Blood Pressure Determinants — Advanced Statistics Project
 
-A machine learning pipeline that predicts the presence of heart disease from clinical indicators, paired with a Streamlit web app for interactive clinical decision support.
+> **Course:** Advanced Statistics | FAST NUCES Islamabad  
+> **Student:** Ahmed Bilal | Roll No. 23I-2581 | Section DS-A  
+> **Dataset:** NHANES 1988–2018 (Kaggle / CDC)
 
-**Model:** Random Forest · **Dataset:** Cleveland Heart Disease (UCI) · **Interface:** Streamlit
+---
+
+## Abstract
+
+This project investigates the socioeconomic, dietary, and lifestyle determinants of **systolic blood pressure (SBP)** using data from the National Health and Nutrition Examination Survey (NHANES) 1988–2018. Two predictive models are developed and compared — **Multiple Linear Regression (MLR)** and a **Random Forest Regressor** — to quantify the relative contribution of age, BMI, physical activity, dietary sodium intake, income level, and sedentary hours to SBP variation in a large, nationally representative U.S. adult cohort.
+
+---
+
+## Variables
+
+| Variable | NHANES Code | Role | Description |
+|----------|------------|------|-------------|
+| Systolic BP | `VNAVEBPXSY` | **Dependent (Y)** | Average systolic blood pressure (mmHg) |
+| Age | `RIDAGEYR` | Independent | Age in years (adults ≥ 18) |
+| BMI | `BMXBMI` | Independent | Body Mass Index (kg/m²) |
+| Sedentary Hours | `PAD680` | Independent | Daily sedentary time (hours) |
+| Sodium Intake | `DRXTSODI` | Independent | Dietary sodium (mg/day) |
+| Income Level | `INDFMPIR` | Independent | Family income-to-poverty ratio |
+| Physical Activity | `PAQ650` | Independent | Vigorous physical activity (binary: 1=Yes, 0=No) |
+
+---
+
+## Key Results
+
+| Metric | Multiple Linear Regression | Random Forest | Better |
+|--------|---------------------------|---------------|--------|
+| MSE | 242.05 | 238.13 | RF |
+| RMSE | 15.56 mmHg | 15.43 mmHg | RF |
+| R² (test) | 0.1885 | 0.2016 | RF |
+| 5-Fold CV R² | 0.2165 ± 0.017 | 0.2147 ± 0.036 | Tie |
+| Interpretability | High | Moderate | MLR |
+
+> Run `src/analysis.py` to reproduce these results.
 
 ---
 
 ## Project Structure
 
 ```
-ASM-4/
+Adv-Stat-Project/
+│
+├── README.md                         ← This file
+├── .gitignore
+├── requirements.txt
+│
+├── data/
+│   ├── raw/                          ← Raw CSVs (gitignored; see data/README.md)
+│   └── README.md                     ← Download instructions & variable dictionary
+│
 ├── notebooks/
-│   ├── assignment4.ipynb          # Original exploration notebook
-│   └── assignment4_clean.ipynb    # Final cleaned notebook (run this)
-├── app/
-│   ├── app.py                     # Streamlit application
-│   ├── heart_model.pkl            # Trained Random Forest model
-│   ├── scaler.pkl                 # Fitted StandardScaler
-│   ├── feature_names.pkl          # Encoded feature column names
-│   └── sample_patient.pkl         # Pre-loaded test patient
-├── report/
-│   └── report.pdf                 # Full written report
-├── artifacts/
-│   └── diagrams/                  # Figures and plots
-└── requirements.txt
+│   ├── 23i-2581.ipynb                ← Main exploratory analysis notebook
+│   └── Ahmed_Bilal_Muhammad.ipynb    ← Alternative / partner notebook
+│
+├── src/
+│   ├── analysis.py                   ← Full analysis pipeline (Tasks 01–05)
+│   ├── extract_stats.py              ← Helper: extract summary statistics
+│   └── fix_encoding.py               ← Helper: fix CSV encoding issues
+│
+├── outputs/
+│   ├── Task01_SummaryStats.csv       ← Summary statistics table
+│   ├── Task02_BoxPlots.png           ← Box & whisker plots
+│   ├── Task03_ScatterGrid.png        ← Scatter plot grid (IVs vs SBP)
+│   ├── Task05_PredVsActual.png       ← Predicted vs Actual (MLR & RF)
+│   ├── Task05_Residuals.png          ← Residual analysis
+│   ├── Task05_FeatureImportance.png  ← RF feature importances
+│   └── Task05_ModelComparison.png    ← MSE / RMSE / R² bar charts
+│
+├── reports/
+│   ├── report.tex                    ← LaTeX source
+│   ├── Advanced_Statistics_Project.pdf ← Final compiled report
+│   ├── Blood_Pressure_Literature_Review.docx
+│   └── project-instructions.md
+│
+└── references/
+    └── README.md                     ← APA citations for all 11 papers
 ```
 
 ---
 
-## Dataset Download
+## Quickstart
 
-The project uses the **Cleveland Heart Disease** dataset from the UCI Machine Learning Repository.
+### 1. Clone the repository
 
-1. Go to: https://archive.ics.uci.edu/dataset/45/heart+disease
-2. Download `processed.cleveland.data`
-3. Place it in the project root (same level as `notebooks/`):
-
-```
-ASM-4/
-└── processed.cleveland.data
+```bash
+git clone https://github.com/ahmedbilalazhar/Adv-Stat-Project.git
+cd Adv-Stat-Project
 ```
 
-> **Note:** The file has no header row. The notebook assigns column names automatically — no manual editing required.
-
----
-
-## Running the Notebook
-
-### Prerequisites
-
-Install all dependencies:
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Steps
+### 3. Download the data
 
-1. Make sure `processed.cleveland.data` is in the project root (see above).
-2. Open the notebook:
+See [`data/README.md`](data/README.md) for instructions to download the NHANES CSVs from Kaggle and place them in `data/raw/`.
 
-```bash
-jupyter notebook notebooks/assignment4_clean.ipynb
-```
-
-3. Run all cells top to bottom (**Kernel → Restart & Run All**).
-
-The notebook will:
-- Load and preprocess the Cleveland dataset
-- Handle missing values and encode categorical features
-- Train and evaluate a Random Forest classifier
-- Save `heart_model.pkl`, `scaler.pkl`, `feature_names.pkl`, and `sample_patient.pkl` into the `app/` folder
-
-> **Important:** Run the notebook at least once before launching the app, so the `.pkl` artifact files are generated.
-
----
-
-## Running the Streamlit App
-
-Make sure you are in the project root directory and the `.pkl` files exist in `app/`.
+### 4. Run the analysis
 
 ```bash
-streamlit run app/app.py
+python src/analysis.py
 ```
 
-The app will open at `http://localhost:8501` in your browser.
-
-### Using the App
-
-- The sidebar form is **pre-populated** with a real test patient from the dataset.
-- Adjust any clinical values (age, cholesterol, chest pain type, etc.) using the sidebar inputs.
-- Click **Run Prediction** to generate a risk assessment.
-- The main panel displays:
-  - Prediction outcome (Disease Present / No Disease Detected)
-  - Disease probability with a visual progress bar
-  - Top 3 most important features driving the prediction
-  - A plain-English clinical interpretation
+All output figures and tables will be saved to the `outputs/` folder.
 
 ---
 
-## Feature Reference
+## Output Visualizations
 
-| Feature    | Type        | Range / Values      | Description                          |
-|------------|-------------|---------------------|--------------------------------------|
-| `age`      | Numeric     | 20 – 80             | Age in years                         |
-| `sex`      | Binary      | 0 / 1               | 0 = Female, 1 = Male                 |
-| `cp`       | Categorical | 1 – 4               | Chest pain type                      |
-| `trestbps` | Numeric     | 80 – 200 mmHg       | Resting blood pressure               |
-| `chol`     | Numeric     | 100 – 600 mg/dl     | Serum cholesterol                    |
-| `fbs`      | Binary      | 0 / 1               | Fasting blood sugar > 120 mg/dl      |
-| `restecg`  | Categorical | 0 – 2               | Resting ECG results                  |
-| `thalach`  | Numeric     | 70 – 210 bpm        | Maximum heart rate achieved          |
-| `exang`    | Binary      | 0 / 1               | Exercise-induced angina              |
-| `oldpeak`  | Numeric     | 0.0 – 6.2           | ST depression induced by exercise    |
-| `slope`    | Categorical | 1 – 3               | Slope of peak exercise ST segment    |
-| `ca`       | Numeric     | 0 – 3               | Major vessels coloured by fluoroscopy|
-| `thal`     | Categorical | 3 / 6 / 7           | Thalassemia type                     |
+### Task 02 — Box & Whisker Plots
+![Box Plots](outputs/Task02_BoxPlots.png)
+
+### Task 03 — Scatter Plot Grid
+![Scatter Grid](outputs/Task03_ScatterGrid.png)
+
+### Task 05 — Model Comparison
+![Model Comparison](outputs/Task05_ModelComparison.png)
+
+### Task 05 — Predicted vs Actual
+![Predicted vs Actual](outputs/Task05_PredVsActual.png)
 
 ---
 
-## Dependencies
+## References
 
-Key libraries (see `requirements.txt` for pinned versions):
-
-- `scikit-learn` — model training and preprocessing
-- `xgboost` — gradient boosting (explored in notebook)
-- `imbalanced-learn` — SMOTE oversampling
-- `shap` — feature importance explanations
-- `streamlit` — web application
-- `pandas`, `numpy`, `matplotlib`, `seaborn` — data handling and visualisation
-- `tensorflow` — deep learning experiments (notebook)
+See [`references/README.md`](references/README.md) for the full list of 11 cited papers in APA 7th edition format.
 
 ---
 
-## Authors
+## License
 
-**Ahmed Bilal** — 23I-2581  
+This project is submitted for academic purposes only.  
+Dataset © U.S. Centers for Disease Control and Prevention (CDC) — Public Domain.
